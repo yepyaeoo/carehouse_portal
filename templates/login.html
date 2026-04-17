@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Log in as {{ role | capitalize }}</h1>
+
+<div class="card">
+  <form method="POST">
+    <label>Username</label>
+    <input type="text" name="username" required autofocus
+           placeholder="{% if role == 'admin' %}admin{% else %}e.g. user1{% endif %}">
+
+    <label>Password</label>
+    <input type="password" name="password" required
+           placeholder="{% if role == 'admin' %}1234{% else %}abcd{% endif %}">
+
+    <button class="btn" type="submit">&#128274; Log in</button>
+  </form>
+</div>
+
+<p style="margin-top:16px; font-size:15px;">
+  <a href="{{ url_for('auth.index') }}" style="color:#2d9e6b;">&#8592; Back to role selection</a>
+</p>
+
+{% endblock %}

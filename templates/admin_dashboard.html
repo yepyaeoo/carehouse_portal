@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Admin dashboard</h1>
+<p style="color:#666; margin-bottom:24px;">What would you like to do?</p>
+
+<div class="dashboard-grid">
+
+  <a href="{{ url_for('admin.patients') }}" class="dash-btn">
+    <span class="icon">&#128101;</span>
+    <span>Patients</span>
+  </a>
+
+  <a href="{{ url_for('admin.medicines') }}" class="dash-btn">
+    <span class="icon">&#128138;</span>
+    <span>Medicines</span>
+  </a>
+
+  <a href="{{ url_for('admin.assign') }}" class="dash-btn">
+    <span class="icon">&#128203;</span>
+    <span>Assign medicine</span>
+  </a>
+
+  <a href="{{ url_for('admin.assignments') }}" class="dash-btn">
+    <span class="icon">&#128196;</span>
+    <span>View assignments</span>
+  </a>
+
+  <a href="{{ url_for('admin.messages') }}" class="dash-btn">
+    <span class="icon">&#128140;</span>
+    <span>Send message</span>
+  </a>
+
+</div>
+
+{% endblock %}

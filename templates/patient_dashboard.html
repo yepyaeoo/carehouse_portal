@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>
+  Hello,
+  {{ current_user.profile.name if current_user.profile else current_user.username }}
+</h1>
+<p style="color:#666; margin-bottom:24px;">What would you like to do?</p>
+
+<div class="dashboard-grid">
+
+  <a href="{{ url_for('patient.schedule') }}" class="dash-btn">
+    <span class="icon">&#128137;</span>
+    <span>My medicines</span>
+  </a>
+
+  <a href="{{ url_for('patient.profile') }}" class="dash-btn">
+    <span class="icon">&#128100;</span>
+    <span>My profile</span>
+  </a>
+
+  <a href="{{ url_for('patient.mailbox') }}" class="dash-btn">
+    <span class="icon">&#128140;</span>
+    <span>Mailbox</span>
+    {% if unread > 0 %}
+      <span class="badge">{{ unread }} new</span>
+    {% endif %}
+  </a>
+
+</div>
+
+{% endblock %}

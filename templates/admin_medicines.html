@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Medicines</h1>
+
+<div class="card">
+  <h2>Add new medicine</h2>
+  <form method="POST">
+    <label>Name</label>
+    <input type="text" name="name" placeholder="e.g. Aspirin" required>
+
+    <label>Description</label>
+    <input type="text" name="description" placeholder="e.g. Pain relief">
+
+    <button class="btn" type="submit">&#43; Add medicine</button>
+  </form>
+</div>
+
+<h2>Registered medicines</h2>
+
+{% if medicines %}
+  {% for med in medicines %}
+  <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <strong>{{ med.name }}</strong>
+      {% if med.description %}
+        <p style="color:#666; font-size:15px; margin-top:4px;">{{ med.description }}</p>
+      {% endif %}
+    </div>
+    <a href="{{ url_for('admin.delete_medicine', medicine_id=med.id) }}"
+       class="btn btn-danger"
+       style="font-size:14px; padding:8px 16px; margin-top:0;"
+       onclick="return confirm('Delete this medicine?')">&#128465; Delete</a>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card">
+    <p style="color:#aaa;">No medicines registered yet.</p>
+  </div>
+{% endif %}
+
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-gray">
+  &#8592; Back to dashboard
+</a>
+
+{% endblock %}

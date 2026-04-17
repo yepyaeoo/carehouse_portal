@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>All assignments</h1>
+
+{% if patients %}
+  {% for patient in patients %}
+    {% if patient.assignments %}
+    <div class="card">
+      <strong style="font-size:18px;">
+        {{ patient.profile.name if patient.profile else patient.username }}
+      </strong>
+      <table style="margin-top:14px; font-size:15px;">
+        <tr style="border-bottom:1px solid #e8f5ee; color:#888;">
+          <th style="padding:6px 12px 6px 0;">Medicine</th>
+          <th style="padding:6px 12px;">Dosage</th>
+          <th style="padding:6px 12px;">Day</th>
+          <th style="padding:6px 12px;">Time</th>
+          <th style="padding:6px 12px;">Last status</th>
+          <th style="padding:6px 0 6px 12px;"></th>
+        </tr>
+        {% for assignment in patient.assignments %}
+        <tr style="border-bottom:1px solid #f0f7f4;">
+          <td style="padding:8px 12px 8px 0;">{{ assignment.medicine.name }}</td>
+          <td style="padding:8px 12px;">{{ assignment.dosage }}</td>
+          <td style="padding:8px 12px;">{{ assignment.day_of_week }}</td>
+          <td style="padding:8px 12px;">{{ assignment.schedule_time }}</td>
+          <td style="padding:8px 12px;">
+            {% if assignment.logs %}
+              {% set last = assignment.logs[-1] %}
+              <span class="badge-taken">{{ last.status }} — {{ last.taken_date }}</span>
+            {% else %}
+              <span class="badge-pending">No record yet</span>
+            {% endif %}
+          </td>
+          <td style="padding:8px 0 8px 12px;">
+            <a href="{{ url_for('admin.delete_assignment', assignment_id=assignment.id) }}"
+               style="color:#dc2626; font-size:13px;"
+               onclick="return confirm('Remove this assignment?')">&#128465; Remove</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+  {% endfor %}
+{% else %}
+  <div class="card">
+    <p style="color:#aaa;">No assignments yet.</p>
+  </div>
+{% endif %}
+
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-gray">
+  &#8592; Back to dashboard
+</a>
+
+{% endblock %}

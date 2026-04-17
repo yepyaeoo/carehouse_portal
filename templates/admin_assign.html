@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Assign medicine</h1>
+
+<div class="card">
+  <form method="POST">
+    <label>Patient</label>
+    <select name="patient_id" required>
+      <option value="">-- Select patient --</option>
+      {% for patient in patients %}
+        <option value="{{ patient.id }}">
+          {% if patient.profile %}{{ patient.profile.name }}{% else %}{{ patient.username }}{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+
+    <label>Medicine</label>
+    <select name="medicine_id" required>
+      <option value="">-- Select medicine --</option>
+      {% for med in medicines %}
+        <option value="{{ med.id }}">{{ med.name }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Dosage</label>
+    <input type="text" name="dosage" placeholder="e.g. 100mg" required>
+
+    <label>Day</label>
+    <select name="day_of_week" required>
+      <option value="Daily">Every day</option>
+      <option value="Monday">Monday</option>
+      <option value="Tuesday">Tuesday</option>
+      <option value="Wednesday">Wednesday</option>
+      <option value="Thursday">Thursday</option>
+      <option value="Friday">Friday</option>
+      <option value="Saturday">Saturday</option>
+      <option value="Sunday">Sunday</option>
+    </select>
+
+    <label>Time</label>
+    <input type="time" name="schedule_time" required>
+
+    <button class="btn" type="submit">&#128203; Assign</button>
+  </form>
+</div>
+
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-gray">
+  &#8592; Back to dashboard
+</a>
+
+{% endblock %}

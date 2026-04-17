@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>My medicines</h1>
+<p style="color:#666; margin-bottom:24px;">
+  Today is {{ today.strftime("%A, %d %B %Y") }}
+</p>
+
+<h2>Today's schedule</h2>
+
+{% if schedule %}
+  {% for item in schedule %}
+  <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <div style="font-size:20px; font-weight:bold;">
+        {{ item.assignment.medicine.name }}
+      </div>
+      <div style="color:#666; margin-top:4px; font-size:15px;">
+        {{ item.assignment.dosage }}
+        {% if item.assignment.medicine.description %}
+          &nbsp;·&nbsp; {{ item.assignment.medicine.description }}
+        {% endif %}
+      </div>
+      <div style="margin-top:6px; font-size:15px; color:#444;">
+        Take at {{ item.assignment.schedule_time }}
+      </div>
+    </div>
+    <div style="text-align:right;">
+      {% if item.taken %}
+        <span class="badge-taken">&#10003; Taken at {{ item.log.taken_time }}</span>
+        <br>
+        <a href="{{ url_for('patient.undo_medicine', assignment_id=item.assignment.id) }}"
+           style="font-size:13px; color:#999; margin-top:6px; display:inline-block;">
+          Undo
+        </a>
+      {% else %}
+        <a href="{{ url_for('patient.take_medicine', assignment_id=item.assignment.id) }}"
+           class="btn btn-success" style="margin-top:0;">
+          &#10003; Mark as taken
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card">
+    <p style="color:#aaa;">No medicines scheduled for today.</p>
+  </div>
+{% endif %}
+
+<h2 style="margin-top:36px;">This week's history</h2>
+
+{% if week_logs %}
+  {% for item in week_logs %}
+  <div class="card">
+    <strong>{{ item.assignment.medicine.name }}</strong>
+    <span style="color:#888; font-size:14px; margin-left:8px;">
+      {{ item.assignment.day_of_week }} at {{ item.assignment.schedule_time }}
+    </span>
+    {% if item.logs %}
+      <table style="margin-top:12px; font-size:15px;">
+        <tr style="color:#aaa; border-bottom:1px solid #e8f5ee;">
+          <th style="padding:4px 16px 4px 0;">Date</th>
+          <th style="padding:4px 16px;">Time taken</th>
+          <th style="padding:4px 0 4px 16px;">Status</th>
+        </tr>
+        {% for log in item.logs %}
+        <tr style="border-bottom:1px solid #f0f7f4;">
+          <td style="padding:6px 16px 6px 0;">{{ log.taken_date.strftime("%a %d %b") }}</td>
+          <td style="padding:6px 16px;">{{ log.taken_time }}</td>
+          <td style="padding:6px 0 6px 16px;">
+            <span class="badge-taken">{{ log.status }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p style="color:#aaa; font-size:14px; margin-top:8px;">No history yet.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% endif %}
+
+<a href="{{ url_for('patient.dashboard') }}" class="btn btn-gray">
+  &#8592; Back to dashboard
+</a>
+
+{% endblock %}

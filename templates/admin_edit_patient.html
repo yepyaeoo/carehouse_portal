@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Edit patient</h1>
+
+<div class="card">
+  <form method="POST">
+    <label>Username</label>
+    <input type="text" name="username" value="{{ user.username }}" required>
+
+    <label>New password <span style="color:#aaa; font-size:13px;">(leave blank to keep current)</span></label>
+    <input type="password" name="password" placeholder="Enter new password to change">
+
+    <label>Full name</label>
+    <input type="text" name="name" value="{{ profile.name }}" required>
+
+    <label>Age</label>
+    <input type="number" name="age" value="{{ profile.age }}" required min="1" max="120">
+
+    <label>Weight (kg)</label>
+    <input type="number" name="weight" value="{{ profile.weight_kg }}" required step="0.1">
+
+    <label>Height (cm)</label>
+    <input type="number" name="height" value="{{ profile.height_cm }}" required step="0.1">
+
+    <label>Blood pressure</label>
+    <input type="text" name="blood_pressure" value="{{ profile.blood_pressure }}">
+
+    <button class="btn" type="submit">&#10003; Save changes</button>
+  </form>
+</div>
+
+<a href="{{ url_for('admin.patients') }}" class="btn btn-gray">
+  &#8592; Back to patients
+</a>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Patients</h1>
+
+<a href="{{ url_for('admin.add_patient') }}" class="btn" style="margin-bottom:24px;">
+  &#43; Add new patient
+</a>
+
+{% if patients %}
+<div style="overflow-x:auto;">
+  <table style="font-size:16px; background:white; border-radius:12px;
+                overflow:hidden; border:1px solid #c8e6d8;">
+    <thead>
+      <tr style="background:#2d9e6b; color:white;">
+        <th style="padding:14px 16px;">Name</th>
+        <th style="padding:14px 16px;">Username</th>
+        <th style="padding:14px 16px; text-align:center;">Age</th>
+        <th style="padding:14px 16px; text-align:center;">Height (cm)</th>
+        <th style="padding:14px 16px; text-align:center;">Weight (kg)</th>
+        <th style="padding:14px 16px; text-align:center;">Blood pressure</th>
+        <th style="padding:14px 16px; text-align:center;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for patient in patients %}
+      <tr style="border-bottom:1px solid #e8f5ee;
+                 {% if loop.index is even %}background:#f9fdfb;{% else %}background:white;{% endif %}">
+        {% if patient.profile %}
+          <td style="padding:12px 16px; font-weight:bold;">{{ patient.profile.name }}</td>
+          <td style="padding:12px 16px; color:#666;">{{ patient.username }}</td>
+          <td style="padding:12px 16px; text-align:center;">{{ patient.profile.age }}</td>
+          <td style="padding:12px 16px; text-align:center;">{{ patient.profile.height_cm }}</td>
+          <td style="padding:12px 16px; text-align:center;">{{ patient.profile.weight_kg }}</td>
+          <td style="padding:12px 16px; text-align:center;">
+            <span class="badge-bp">{{ patient.profile.blood_pressure }}</span>
+          </td>
+        {% else %}
+          <td style="padding:12px 16px;" colspan="6">
+            <span style="color:#aaa;">No profile data</span>
+          </td>
+        {% endif %}
+        <td style="padding:12px 16px; text-align:center;">
+          <a href="{{ url_for('admin.edit_patient', user_id=patient.id) }}"
+             style="color:#2d9e6b; font-size:14px; margin-right:10px;">&#9998; Edit</a>
+          <a href="{{ url_for('admin.delete_patient', user_id=patient.id) }}"
+             style="color:#dc2626; font-size:14px;"
+             onclick="return confirm('Remove this patient?')">&#128465; Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div class="card">
+    <p style="color:#aaa;">No patients registered yet.</p>
+  </div>
+{% endif %}
+
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-gray" style="margin-top:24px;">
+  &#8592; Back to dashboard
+</a>
+
+{% endblock %}
