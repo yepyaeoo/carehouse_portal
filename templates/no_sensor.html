@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ room_name }} - 情報</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f2f9f5; color: #1c2d24; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 85vh; }
+        .notice-container { width: 100%; max-width: 550px; background: white; border: 3px solid #cbdccb; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,0.03); }
+        h1 { color: #27ae60; font-size: 2rem; margin-top: 0; }
+        .meta-box { background-color: #f9fbf9; border-radius: 12px; padding: 15px; margin: 25px 0; font-size: 1.2rem; border-left: 5px solid #27ae60; text-align: left; }
+        p.warn-text { color: #7f8c8d; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px; }
+        .back-btn { display: inline-block; background-color: #ffffff; border: 3px solid #27ae60; color: #27ae60; text-decoration: none; padding: 12px 28px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; transition: all 0.2s; }
+        .back-btn:hover { background-color: #eaf6ee; }
+    </style>
+</head>
+<body>
+    <div class="notice-container">
+        <h1>{{ room_name }}</h1>
+        
+        <div class="meta-box">
+            現在の入居者: <strong>{{ patient_name }} 様</strong>
+        </div>
+        
+        <p class="warn-text">
+            この部屋にはまだセンサーが設置されていません。<br>
+            リアルタイムの温度・湿度データを計測するには環境測定子機の設置が必要です。
+        </p>
+        
+        <a href="/rooms" class="back-btn">部屋一覧に戻る</a>
+    </div>
+</body>
+</html>

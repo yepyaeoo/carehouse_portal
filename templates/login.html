@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>施設環境 みまもりシステム - ログイン</title>
+    <style>
+        body {
+            font-family: "Meiryo", "MS PGothic", sans-serif;
+            background-color: #f2f9f5;
+            color: #1c2d24;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 450px;
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            border: 3px solid #cbdccb;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2rem;
+            color: #27ae60;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 22px;
+        }
+        label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 3px solid #cbdccb;
+            border-radius: 12px;
+            box-sizing: border-box;
+            background-color: #fafafa;
+        }
+        input:focus {
+            border-color: #27ae60;
+            outline: none;
+            background-color: #ffffff;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            text-align: left;
+            background-color: #fdf2f2;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+        }
+        .submit-btn {
+            width: 100%;
+            background-color: #27ae60;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .submit-btn:hover {
+            background-color: #219653;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>みまもりシステム</h1>
+        
+        {% if error_message %}
+            <div class="error-msg">{{ error_message }}</div>
+        {% endif %}
+        
+        <form action="/" method="POST">
+            <div class="form-group">
+                <label for="username">ユーザー名 (Username)</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">パスワード (Password)</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="submit-btn">ログイン</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 ケアハウス AIアシスタント</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f2f9f5; color: #1c2d24; margin: 0; padding: 20px; display: flex; justify-content: center; height: 100vh; box-sizing: border-box; }
+        .ai-container { width: 100%; max-width: 650px; display: flex; flex-direction: column; height: 100%; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
+        h1 { color: #8e44ad; margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 8px; }
+        .back-btn { background: white; border: 3px solid #8e44ad; border-radius: 12px; padding: 8px 18px; font-weight: bold; text-decoration: none; color: #8e44ad; }
+        .back-btn:hover { background: #f9f2fc; }
+        
+        /* Chat Feed Box Window styling */
+        .chat-view-pane { flex-grow: 1; background: white; border: 3px solid #cbdccb; border-radius: 20px; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.03); }
+        
+        /* Speech Bubble Base Architectures */
+        .bubble-wrapper { display: flex; width: 100%; }
+        .bubble-wrapper.ai-side { justify-content: flex-start; }
+        .bubble-wrapper.user-side { justify-content: flex-end; }
+        
+        .msg-bubble { max-width: 75%; padding: 14px 18px; font-size: 1.1rem; line-height: 1.5; border-radius: 18px; position: relative; }
+        
+        /* AI Theme: Soft Purple */
+        .ai-side .msg-bubble { background: #f3e5f5; color: #4a148c; border: 2px solid #e1bee7; border-top-left-radius: 4px; }
+        .ai-side .avatar-tag { font-size: 0.8rem; font-weight: bold; color: #8e44ad; margin-bottom: 4px; display: block; }
+        
+        /* Resident Theme: Clean Soft Emerald */
+        .user-side .msg-bubble { background: #e8f5e9; color: #1b5e20; border: 2px solid #c8e6c9; border-top-right-radius: 4px; text-align: left; }
+        
+        /* Input Tray Dock Area */
+        .input-dock { display: flex; gap: 10px; background: white; border: 3px solid #cbdccb; border-radius: 16px; padding: 10px; flex-shrink: 0; }
+        .input-field { flex-grow: 1; border: none; padding: 10px; font-size: 1.1rem; font-family: inherit; outline: none; }
+        .btn-send { background: #8e44ad; color: white; border: none; border-radius: 12px; padding: 10px 22px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.15s; }
+        .btn-send:hover { background: #732d91; }
+    </style>
+    <script>
+        // Simple client-side dummy response script simulation
+        function handleDummySend(event) {
+            event.preventDefault();
+            const inputElement = document.getElementById('user-input');
+            const userText = inputElement.value.trim();
+            if (!userText) return;
+            
+            const chatPane = document.getElementById('chat-pane');
+            
+            // 1. Render User's Bubble
+            const userWrapper = document.createElement('div');
+            userWrapper.className = 'bubble-wrapper user-side';
+            userWrapper.innerHTML = `<div class="msg-bubble">${escapeHtml(userText)}</div>`;
+            chatPane.appendChild(userWrapper);
+            
+            // Clear entry field box immediately
+            inputElement.value = '';
+            chatPane.scrollTop = chatPane.scrollHeight;
+            
+            // 2. Trigger automated artificial reply timer mock after 1 second
+            setTimeout(() => {
+                const aiWrapper = document.createElement('div');
+                aiWrapper.className = 'bubble-wrapper ai-side';
+                aiWrapper.innerHTML = `
+                    <div class="msg-bubble">
+                        <span class="avatar-tag">🤖 AIアシスタント</span>
+                        「${escapeHtml(userText)}」についてですね！お話を聞かせていただきありがとうございます。現在のシステムはシミュレーション表示モードです。実機能の連携までもうしばらくお待ちくださいね。
+                    </div>`;
+                chatPane.appendChild(aiWrapper);
+                chatPane.scrollTop = chatPane.scrollHeight;
+            }, 1000);
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+    </script>
+</head>
+<body>
+    <div class="ai-container">
+        <div class="header">
+            <h1>🤖 AIおしゃべりパートナー</h1>
+            <a href="/room/403" class="back-btn">お部屋へ戻る</a>
+        </div>
+
+        <div class="chat-view-pane" id="chat-pane">
+            <div class="bubble-wrapper ai-side">
+                <div class="msg-bubble">
+                    <span class="avatar-tag">🤖 AIアシスタント</span>
+                    こんにちは、{{ patient_name }}様！今日のご気分はいかがですか？室内の温度調節のアドバイスや、お話し相手など、なんでも気軽にメッセージを入力して話しかけてくださいね。
+                </div>
+            </div>
+        </div>
+
+        <form class="input-dock" onsubmit="handleDummySend(event)">
+            <input type="text" id="user-input" class="input-field" placeholder="ここにメッセージを入力..." autocomplete="off" required>
+            <button type="submit" class="btn-send">送信</button>
+        </form>
+    </div>
+</body>
+</html>

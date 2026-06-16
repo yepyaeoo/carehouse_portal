@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ room_number }}号室 - マイページ</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f2f9f5; color: #1c2d24; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .dashboard-box { width: 100%; max-width: 700px; margin-top: 10px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        h1 { color: #27ae60; margin: 0; font-size: 1.8rem; }
+        
+        /* Redesigned Logout Button to replace Back Button */
+        .btn-logout { background: #e74c3c; color: white; border: none; border-radius: 12px; padding: 10px 20px; font-weight: bold; text-decoration: none; font-size: 1rem; transition: background 0.15s; }
+        .btn-logout:hover { background: #c0392b; }
+        
+        /* More welcoming, user-centric banner layout */
+        .welcome-bar { background: #ffffff; border: 3px solid #cbdccb; border-radius: 16px; padding: 20px; font-size: 1.4rem; font-weight: bold; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; }
+        .welcome-msg { color: #2c3e50; }
+        .welcome-msg span { color: #27ae60; font-size: 1.6rem; }
+        .age-badge { background-color: #eaf6ee; color: #27ae60; padding: 4px 12px; border-radius: 20px; font-size: 1rem; font-weight: normal; border: 1px solid #cbdccb; }
+        
+        /* Layout Grids */
+        .grid-communication { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .grid-vitals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 35px; }
+        @media(max-width: 550px) { 
+            .grid-communication { grid-template-columns: 1fr; } 
+            .grid-vitals { grid-template-columns: 1fr; }
+        }
+        
+        /* Card Foundations */
+        .vital-card { background: white; border: 3px solid #cbdccb; border-radius: 20px; padding: 30px 15px; text-align: center; }
+        .vital-title { font-size: 1.1rem; font-weight: bold; color: #7f8c8d; margin-bottom: 10px; }
+        .vital-value { font-size: 2.2rem; font-weight: bold; color: #2c3e50; }
+        .unit { font-size: 1.1rem; font-weight: normal; margin-left: 4px; }
+        
+        /* Actionable Interaction Links */
+        .comm-link { display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border-radius: 14px; padding: 15px; text-decoration: none; font-weight: bold; font-size: 1.1rem; position: relative; transition: all 0.15s; }
+        .comm-link:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .history-link-box { background: white; border: 3px solid #27ae60; border-radius: 20px; padding: 25px; text-align: center; transition: all 0.2s; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .history-link-box:hover { background-color: #eaf6ee; transform: translateY(-3px); }
+        .history-link-box h3 { margin: 0; color: #27ae60; font-size: 1.3rem; font-weight: bold; }
+        .chart-svg { width: 45px; height: 45px; fill: #27ae60; }
+        
+        /* Notification Badges and Pulse Animations */
+        .badge-bubble { background: #e74c3c; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; position: absolute; top: -10px; right: -10px; font-family: sans-serif; animation: alert_badge_pulse 1s infinite alternate; }
+        .heart-alert { color: #e74c3c !important; animation: heartbeat_pulse 1.2s infinite alternate; }
+        
+        @keyframes heartbeat_pulse { 0% { transform: scale(1); } 100% { transform: scale(1.04); } }
+        @keyframes alert_badge_pulse { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+    </style>
+</head>
+<body>
+    <div class="dashboard-box">
+        <div class="header">
+            <h1>{{ room_number }}号室 みまもりシステム</h1>
+            <a href="/logout" class="btn-logout">ログアウト</a>
+        </div>
+        
+        <div class="welcome-bar">
+            <div class="welcome-msg">おかえりなさい、<span>{{ data.name }} 様</span></div>
+            <div class="age-badge">ご年齢: {{ data.age }} 歳</div>
+        </div>
+        
+        <div class="grid-communication">
+            <a href="/patient/notices" class="comm-link" style="border: 3px solid #27ae60; color: #27ae60;">
+                <span>📢 施設からのお知らせ</span>
+                {% if badges and badges.unread_notices > 0 %}
+                    <span class="badge-bubble">{{ badges.unread_notices }}</span>
+                {% endif %}
+            </a>
+
+            <a href="/patient/mails" class="comm-link" style="border: 3px solid #2f80ed; color: #2f80ed;">
+                <span>📨 お手紙・アンケート</span>
+                {% if badges and badges.unreplied_mails > 0 %}
+                    <span class="badge-bubble">{{ badges.unreplied_mails }}</span>
+                {% endif %}
+            </a>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+            <a href="/patient/ai-assistant" class="comm-link" style="border: 3px solid #8e44ad; color: #8e44ad; background: #fff;">
+                <span>🤖 AIおしゃべりパートナーを開く</span>
+            </a>
+        </div>
+        
+        <div class="grid-vitals">
+            <div class="vital-card" style="border-color: #e74c3c;">
+                <div class="vital-title">❤️ 心拍数 (BPM)</div>
+                <div class="vital-value heart-alert">{{ data.bpm }}<span class="unit">bpm</span></div>
+            </div>
+            <div class="vital-card">
+                <div class="vital-title">🌡️ 部屋温度</div>
+                <div class="vital-value" style="color: #e67e22;">{{ data.temp }}<span class="unit">°C</span></div>
+            </div>
+            <div class="vital-card">
+                <div class="vital-title">💧 部屋湿度</div>
+                <div class="vital-value" style="color: #2980b9;">{{ data.humidity }}<span class="unit">%</span></div>
+            </div>
+        </div>
+
+        <a href="/room/{{ room_number }}/history" class="history-link-box">
+            <svg class="chart-svg" viewBox="0 0 24 24">
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/>
+            </svg>
+            <h3>グラフ履歴・過去ログを確認する</h3>
+        </a>
+    </div>
+</body>
+</html>

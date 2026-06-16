@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📨 お手紙・アンケートBOX</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f2f9f5; color: #1c2d24; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .mail-container { width: 100%; max-width: 650px; margin-top: 10px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        h1 { color: #2f80ed; margin: 0; font-size: 1.6rem; }
+        .back-btn { background: white; border: 3px solid #2f80ed; border-radius: 12px; padding: 8px 18px; font-weight: bold; text-decoration: none; color: #2f80ed; }
+        .back-btn:hover { background: #f0f6ff; }
+        
+        .mail-card { background: white; border: 3px solid #cbdccb; border-radius: 20px; padding: 25px; margin-bottom: 25px; }
+        .mail-meta { font-size: 0.9rem; color: #7f8c8d; font-weight: bold; margin-bottom: 8px; }
+        .mail-title { font-size: 1.3rem; font-weight: bold; color: #2c3e50; margin-bottom: 12px; }
+        .mail-body { font-size: 1.15rem; line-height: 1.6; color: #333; margin-bottom: 20px; background: #fcfdfe; padding: 15px; border-radius: 10px; border-left: 4px solid #2f80ed; }
+        
+        /* Interactive Response Styles */
+        .response-form { background: #f5f9fc; padding: 20px; border-radius: 14px; border: 2px dashed #b9d5f7; }
+        .choices-layout { display: flex; flex-direction: column; gap: 12px; }
+        .btn-choice { background: white; border: 3px solid #2f80ed; color: #2f80ed; border-radius: 14px; padding: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.15s; }
+        .btn-choice:hover { background: #2f80ed; color: white; }
+        
+        .text-input-layout { display: flex; flex-direction: column; gap: 10px; }
+        .text-box { width: 100%; box-sizing: border-box; padding: 12px; border: 3px solid #cbdccb; border-radius: 12px; font-size: 1.1rem; font-family: inherit; }
+        .btn-send-text { background: #2f80ed; color: white; border: none; border-radius: 12px; padding: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .btn-send-text:hover { background: #1b66c9; }
+        
+        /* Locked Confirmed State */
+        .completed-banner { background: #eaf6ee; border: 3px solid #27ae60; border-radius: 14px; padding: 15px; text-align: center; font-weight: bold; color: #27ae60; font-size: 1.1rem; }
+        
+        .empty-msg { text-align: center; color: #7f8c8d; font-size: 1.2rem; margin-top: 50px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="mail-container">
+        <div class="header">
+            <h1>📨 お手紙・アンケート</h1>
+            <a href="/room/403" class="back-btn">お部屋画面へ戻る</a>
+        </div>
+
+        {% if mails %}
+            {% for m in mails %}
+            <div class="mail-card" style="{% if m[6] %}border-color: #cbdccb; background: #fafafa;{% else %}border-color: #b9d5f7;{% endif %}">
+                <div class="mail-meta">届いた日時: {{ m[5][:16] }}</div>
+                <div class="mail-title">{{ m[1] }}</div>
+                <div class="mail-body">{{ m[2] }}</div>
+                
+                <!-- CHECK STATE: Has the resident already submitted their one-time answer? -->
+                {% if m[6] %}
+                    <!-- Lock State Layout -->
+                    <div class="completed-banner">
+                        ✓ 事務所へ回答を送信しました（お答え: 「{{ m[6] }}」）
+                    </div>
+                {% else %}
+                    <!-- Open Actionable Layout -->
+                    <div class="response-form">
+                        <form action="/patient/mails" method="POST">
+                            <input type="hidden" name="mail_id" value="{{ m[0] }}">
+                            
+                            {% if m[3] == 'choices' %}
+                                <!-- Dynamic Choice Button Rendering Logic -->
+                                <div class="choices-layout">
+                                    <div style="font-weight: bold; margin-bottom: 5px; color:#555; font-size:0.95rem;">当てはまるボタンを1つ押してください：</div>
+                                    {% for option in m[4].split(',') %}
+                                    <button type="submit" name="answer" value="{{ option.strip() }}" class="btn-choice">
+                                        {{ option.strip() }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <!-- Text Field Rendering Logic -->
+                                <div class="text-input-layout">
+                                    <label style="font-weight: bold; color:#555; font-size:0.95rem;">こちらに返信を記入してください：</label>
+                                    <textarea name="answer" class="text-box" rows="3" placeholder="ここに入力..." required></textarea>
+                                    <button type="submit" class="btn-send-text">お返事を送信する</button>
+                                </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-msg">現在、届いたお手紙はありません。</div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📢 施設からのお知らせ一覧</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f2f9f5; color: #1c2d24; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .notice-container { width: 100%; max-width: 650px; margin-top: 10px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        h1 { color: #27ae60; margin: 0; font-size: 1.6rem; }
+        .back-btn { background: white; border: 3px solid #27ae60; border-radius: 12px; padding: 8px 18px; font-weight: bold; text-decoration: none; color: #27ae60; }
+        .back-btn:hover { background: #eaf6ee; }
+        
+        .notice-card { background: white; border: 3px solid #cbdccb; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .notice-meta { font-size: 0.9rem; color: #7f8c8d; font-weight: bold; margin-bottom: 8px; }
+        .notice-title { font-size: 1.25rem; font-weight: bold; color: #2c3e50; margin-bottom: 12px; }
+        .notice-body { font-size: 1.1rem; line-height: 1.6; color: #333; white-space: pre-wrap; background: #fafdfb; padding: 15px; border-radius: 10px; border-left: 4px solid #27ae60; }
+        
+        .empty-msg { text-align: center; color: #7f8c8d; font-size: 1.2rem; margin-top: 50px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="notice-container">
+        <div class="header">
+            <h1>📢 施設からのお知らせ</h1>
+            <a href="/room/403" class="back-btn">お部屋画面へ戻る</a>
+        </div>
+
+        {% if notices %}
+            {% for n in notices %}
+            <div class="notice-card">
+                <div class="notice-meta">配信日時: {{ n[3][:16] }}</div>
+                <div class="notice-title">{{ n[1] }}</div>
+                <div class="notice-body">{{ n[2] }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-msg">現在、新しいお知らせはありません。</div>
+        {% endif %}
+    </div>
+</body>
+</html>

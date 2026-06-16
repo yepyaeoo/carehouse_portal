@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ room_number }}号室 - 履歴グラフ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f2f9f5; color: #1c2d24; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .history-box { width: 100%; max-width: 800px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { color: #27ae60; margin: 0; font-size: 1.6rem; }
+        .back-btn { background: white; border: 3px solid #27ae60; border-radius: 12px; padding: 8px 18px; font-weight: bold; text-decoration: none; color: #27ae60; }
+        .back-btn:hover { background: #eaf6ee; }
+        
+        /* Time Toggle Button Layout Elements */
+        .toggle-container { display: flex; gap: 8px; margin-bottom: 20px; }
+        .toggle-btn { flex: 1; text-align: center; padding: 12px; font-weight: bold; text-decoration: none; border-radius: 12px; border: 3px solid #27ae60; transition: all 0.2s ease; }
+        .toggle-btn.active { background-color: #27ae60; color: white; }
+        .toggle-btn.inactive { background-color: white; color: #27ae60; }
+        .toggle-btn.inactive:hover { background-color: #eaf6ee; }
+
+        .chart-holder { background: white; border: 3px solid #cbdccb; border-radius: 16px; padding: 20px; margin-bottom: 25px; }
+        h2 { font-size: 1.1rem; margin-top: 0; margin-bottom: 15px; color: #34495e; border-left: 4px solid #27ae60; padding-left: 8px; }
+        .canvas-container { position: relative; height: 220px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="history-box">
+        <div class="header">
+            <h1>{{ room_number }}号室 測定データ履歴</h1>
+            <a href="/room/{{ room_number }}" class="back-btn">リアルタイム画面へ戻る</a>
+        </div>
+        
+        <div style="font-weight: bold; margin-bottom: 20px; color: #555;">
+            対象入居者: {{ patient_name }} 様
+        </div>
+
+        <div class="toggle-container">
+            <a href="{{ url_for('monitoring.route_room_history', room_number=room_number, range='1h') }}" 
+               class="toggle-btn {% if history.current_range == '1h' %}active{% else %}inactive{% endif %}">
+                ⏱️ 過去1時間 (1分毎)
+            </a>
+            <a href="{{ url_for('monitoring.route_room_history', room_number=room_number, range='24h') }}" 
+               class="toggle-btn {% if history.current_range == '24h' %}active{% else %}inactive{% endif %}">
+                📅 過去24時間 (1時間毎)
+            </a>
+        </div>
+
+        <div class="chart-holder">
+            <h2>❤️ 心拍数 過去ログ (BPM)</h2>
+            <div class="canvas-container">
+                <canvas id="bpmChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-holder">
+            <h2>室内環境 過去ログ (温度・湿度)</h2>
+            <div class="canvas-container">
+                <canvas id="climateChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inject data payloads safely from Flask
+        const dates = {{ history.dates|tojson }};
+        const temps = {{ history.temps|tojson }};
+        const humidities = {{ history.humidities|tojson }};
+        
+        const bpmDates = {{ history.bpm_dates|tojson }};
+        const bpms = {{ history.bpms|tojson }};
+
+        // Render Heart Rate Chart
+        new Chart(document.getElementById('bpmChart'), {
+            type: 'line',
+            data: {
+                labels: bpmDates.length ? bpmDates : dates,
+                datasets: [{
+                    label: '心拍数 (bpm)',
+                    data: bpms,
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Render Environment Tracker Chart
+        new Chart(document.getElementById('climateChart'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: '温度 (°C)',
+                        data: temps,
+                        borderColor: '#e67e22',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        yAxisID: 'yTemp'
+                    },
+                    {
+                        label: '湿度 (%)',
+                        data: humidities,
+                        borderColor: '#2980b9',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        yAxisID: 'yHum'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    yTemp: { type: 'linear', position: 'left', title: { display: true, text: '温度 (°C)' } },
+                    yHum: { type: 'linear', position: 'right', title: { display: true, text: '湿度 (%)' }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

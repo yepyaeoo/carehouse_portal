@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>施設内通信管理コントロール</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f4f7f6; color: #2c3e50; margin: 0; padding: 30px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { color: #27ae60; margin: 0; }
+        .back-link { background: white; border: 3px solid #7f8c8d; border-radius: 10px; padding: 8px 16px; font-weight: bold; text-decoration: none; color: #555; }
+        
+        /* Flash Notification Banner Styling */
+        .flash-wrapper { background: #d4edda; border: 3px solid #28a745; color: #155724; border-radius: 12px; padding: 15px 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1rem; }
+        .flash-error { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .close-flash-btn { background: none; border: none; color: inherit; font-size: 1.5rem; font-weight: bold; cursor: pointer; line-height: 1; }
+
+        .grid-forms { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        @media(max-width: 850px) { .grid-forms { grid-template-columns: 1fr; } }
+        
+        .form-card { background: white; border: 3px solid #cbdccb; border-radius: 16px; padding: 25px; display: flex; flex-direction: column; }
+        h2 { font-size: 1.2rem; margin-top: 0; margin-bottom: 20px; border-left: 5px solid #27ae60; padding-left: 10px; color: #27ae60; }
+        
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        label { font-weight: bold; font-size: 0.95rem; }
+        input[type="text"], textarea, select { padding: 10px; border: 2px solid #cbdccb; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+        
+        /* Style A: Checkbox Selection List Framework */
+        .checkbox-container-box { border: 2px solid #cbdccb; border-radius: 10px; max-height: 160px; overflow-y: auto; padding: 12px; background: #fafafa; }
+        .master-toggle-row { border-bottom: 2px dashed #cbdccb; padding-bottom: 8px; margin-bottom: 8px; font-weight: bold; color: #27ae60; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; font-size: 1.05rem; cursor: pointer; }
+        .checkbox-row input { transform: scale(1.2); cursor: pointer; }
+
+        .btn-submit { background: #27ae60; color: white; border: none; border-radius: 10px; padding: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: auto; }
+        .btn-submit:hover { background: #219653; }
+        
+        .log-card { background: white; border: 3px solid #cbdccb; border-radius: 16px; padding: 25px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 2px solid #f4f7f6; }
+        th { background-color: #eaf6ee; color: #27ae60; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; }
+    </style>
+    <script>
+        // Master Checkbox Toggle Logic
+        function toggleSelectAll(masterCheckbox, targetClass) {
+            const checkboxes = document.getElementsByClassName(targetClass);
+            for (let i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = masterCheckbox.checked;
+            }
+        }
+
+        // Survey Choice Toggle Rule
+        function toggleResponseTypeFields() {
+            const type = document.getElementById('response_type').value;
+            const choicesGroup = document.getElementById('choices_options_group');
+            choicesGroup.style.display = (type === 'choices') ? 'flex' : 'none';
+        }
+
+        // Intercept Form Submit Event to display Actionable Popup Confirmation boxes
+        function confirmBeforeSending(event, targetTypeLabel) {
+            const form = event.target;
+            const targetCheckboxes = form.querySelectorAll('input[type="checkbox"]:not(.master-box)');
+            
+            let checkedCount = 0;
+            targetCheckboxes.forEach(cb => { if (cb.checked) checkedCount++; });
+            
+            if (checkedCount === 0) {
+                alert("送信エラー：宛先の入居者様が誰も選択されていません。");
+                event.preventDefault();
+                return false;
+            }
+
+            const message = `選択された ${checkedCount} 名の入居者様へ、この${targetTypeLabel}を送信してもよろしいですか？`;
+            const userConfirmed = confirm(message);
+            
+            if (!userConfirmed) {
+                event.preventDefault(); // Halt action execution loop safely
+                return false;
+            }
+            return true;
+        }
+
+        // Dismiss Flash Message Utility Function
+        function dismissFlashBanner(button) {
+            button.parentElement.remove();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-box">
+            <h1>施設内通信・連絡管理センター</h1>
+            <a href="/admin/dashboard" class="back-link">ダッシュボードへ戻る</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash-wrapper {% if category == 'error' %}flash-error{% endif %}">
+                        <span>{{ msg }}</span>
+                        <button class="close-flash-btn" onclick="dismissFlashBanner(this)">×</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="grid-forms">
+            <div class="form-card">
+                <h2>📢 お知らせ・通知を発信</h2>
+                <form action="/admin/communication" method="POST" onsubmit="return confirmBeforeSending(event, 'お知らせ通知')">
+                    <input type="hidden" name="form_type" value="notice">
+                    
+                    <div class="form-group">
+                        <label>配信対象者を選択（複数選択可）</label>
+                        <div class="checkbox-container-box">
+                            <div class="checkbox-row master-toggle-row">
+                                <input type="checkbox" id="notice_all" class="master-box" onchange="toggleSelectAll(this, 'notice_cb')">
+                                <label style="cursor:pointer;" for="notice_all">全員を選択する</label>
+                            </div>
+                            {% for p in patients %}
+                            <div class="checkbox-row">
+                                <input type="checkbox" name="selected_patients" value="{{ p[0] }}" class="notice_cb" id="n_p_{{ p[0] }}">
+                                <label style="cursor:pointer;" for="n_p_{{ p[0] }}">{{ p[1] }} 様</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>通知タイトル</label>
+                        <input type="text" name="title" placeholder="例: 避難訓練実施のご案内" required>
+                    </div>
+                    <div class="form-group">
+                        <label>通知本文</label>
+                        <textarea name="body" rows="4" placeholder="入居者様へ伝える内容を入力してください..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">通知を送信する</button>
+                </form>
+            </div>
+
+            <div class="form-card">
+                <h2>📨 個別アンケート・メールを作成</h2>
+                <form action="/admin/communication" method="POST" onsubmit="return confirmBeforeSending(event, 'アンケートメール')">
+                    <input type="hidden" name="form_type" value="mail">
+                    
+                    <div class="form-group">
+                        <label>送信先を選択（複数選択・個別一斉配信可）</label>
+                        <div class="checkbox-container-box">
+                            <div class="checkbox-row master-toggle-row">
+                                <input type="checkbox" id="mail_all" class="master-box" onchange="toggleSelectAll(this, 'mail_cb')">
+                                <label style="cursor:pointer;" for="mail_all">全員を選択する</label>
+                            </div>
+                            {% for p in patients %}
+                            <div class="checkbox-row">
+                                <input type="checkbox" name="selected_patients" value="{{ p[0] }}" class="mail_cb" id="m_p_{{ p[0] }}">
+                                <label style="cursor:pointer;" for="m_p_{{ p[0] }}">{{ p[1] }} 様</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>件名 / 質問タイトル</label>
+                        <input type="text" name="title" placeholder="例: インフルエンザ予防接種の希望調査" required>
+                    </div>
+                    <div class="form-group">
+                        <label>質問・メッセージ内容</label>
+                        <textarea name="body" rows="3" placeholder="お伺いしたい質問内容を記入..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>回答受付形式</label>
+                        <select name="response_type" id="response_type" onchange="toggleResponseTypeFields()" required>
+                            <option value="text">自由記述テキストボックス</option>
+                            <option value="choices">選択肢ボタンの設置</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="choices_options_group" style="display: none;">
+                        <label>ボタンの選択肢項目（カンマ「,」区切り）</label>
+                        <input type="text" name="choice_options" placeholder="例: 接種を希望する,希望しない,相談して決める">
+                    </div>
+                    <button type="submit" class="btn-submit" style="background: #2f80ed;">カスタムメールを送信</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="log-card">
+            <h2>📢 送信済みお知らせ通知履歴</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>送信日時</th>
+                        <th>タイトル</th>
+                        <th>宛先</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in notices %}
+                    <tr>
+                        <td>{{ n[3][:16] }}</td>
+                        <td><strong>{{ n[1] }}</strong></td>
+                        <td><span class="status-badge" style="background:#e2f0fd; color:#2f80ed;">{{ n[2] }} 様</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="log-card">
+            <h2>📨 メールアンケート回答ステータス追跡</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>送信日時</th>
+                        <th>対象者</th>
+                        <th>件名</th>
+                        <th>入居者様からの返信回答</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in mails %}
+                    <tr>
+                        <td>{{ m[3][:16] }}</td>
+                        <td>{{ m[2] }} 様</td>
+                        <td>{{ m[1] }}</td>
+                        <td>
+                            {% if m[4] %}
+                            <span class="status-badge" style="background:#eaf6ee; color:#27ae60;">返信あり: {{ m[4] }}</span>
+                            {% else %}
+                            <span class="status-badge" style="background:#fcebe9; color:#e74c3c;">未返信 (回答待ち)</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

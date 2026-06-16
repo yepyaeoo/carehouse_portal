@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ケアハウス管理部ダッシュボード</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f4f7f6; color: #2c3e50; margin: 0; padding: 30px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 3px solid #cbdccb; padding-bottom: 20px; }
+        h1 { color: #27ae60; margin: 0; font-size: 2rem; }
+        .btn-logout { background: #e74c3c; color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: bold; text-decoration: none; font-size: 1rem; }
+        .btn-logout:hover { background: #c0392b; }
+        
+        .welcome-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 30px; color: #555; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .dash-card { background: white; border: 3px solid #cbdccb; border-radius: 20px; padding: 30px; text-decoration: none; color: inherit; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .dash-card:hover { transform: translateY(-5px); background-color: #fafdff; }
+        
+        .icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .dash-card h3 { margin: 10px 0; font-size: 1.4rem; color: #2c3e50; }
+        .dash-card p { margin: 0; color: #7f8c8d; font-size: 1rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ケアハウス管理部ダッシュボード</h1>
+            <a href="{{ url_for('auth.route_logout_action') }}" class="btn-logout">ログアウト</a>
+        </div>
+        
+        <div class="welcome-text">
+            ログイン中: <span style="color: #27ae60;">管理者（スタッフ）</span>様
+        </div>
+
+        <div class="dashboard-grid">
+            <a href="{{ url_for('auth.route_room_directory') }}" class="dash-card" style="border-color: #27ae60;">
+                <div class="icon">🏢</div>
+                <h3 style="color: #27ae60;">お部屋状況一覧</h3>
+                <p>リアルタイム空室確認・環境センサーおよび心拍数状況の確認</p>
+            </a>
+
+            <a href="{{ url_for('admin.route_manage_patients') }}" class="dash-card" style="border-color: #e67e22;">
+                <div class="icon">👥</div>
+                <h3 style="color: #e67e22;">入居者名簿・管理</h3>
+                <p>新規入居登録・部屋の割り当て・退去（退去日記録）手続き</p>
+            </a>
+
+            <a href="{{ url_for('admin.route_admin_communication') }}" class="dash-card" style="border-color: #2f80ed;">
+                <div class="icon">✉️</div>
+                <h3 style="color: #2f80ed;">通信・連絡管理</h3>
+                <p>お知らせ一斉配信・カスタムアンケート送信とリアルタイム回答確認</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

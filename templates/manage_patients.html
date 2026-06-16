@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入居者管理システム</title>
+    <style>
+        body { font-family: "Meiryo", sans-serif; background-color: #f2f9f5; color: #1c2d24; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .main-container { width: 100%; max-width: 900px; margin-top: 20px; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .back-link { display: inline-flex; align-items: center; background: white; border: 3px solid #7f8c8d; border-radius: 12px; padding: 8px 16px; font-weight: bold; color: #555; text-decoration: none; }
+        h1 { color: #27ae60; margin: 0; font-size: 1.8rem; }
+        
+        .content-box { background: white; border: 3px solid #cbdccb; border-radius: 16px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        h2 { font-size: 1.3rem; margin-top: 0; color: #2c3e50; border-bottom: 2px solid #cbdccb; padding-bottom: 8px; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #e0e0e0; }
+        th { background-color: #f9fbf9; font-weight: bold; color: #2c3e50; }
+        
+        .discharge-link { color: #e74c3c; border: 2px solid #e74c3c; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9rem; background: white; }
+        .discharge-link:hover { background: #fdf2f2; }
+        
+        .grid-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 2px solid #cbdccb; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .save-btn { background-color: #27ae60; color: white; border: none; border-radius: 8px; padding: 12px 24px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; }
+        .save-btn:hover { background-color: #219653; }
+        .vacant-tag { background: #eaf6ee; color: #27ae60; padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="navbar">
+            <h1>入居者管理</h1>
+            <a href="/admin/dashboard" class="back-link">メニューへ戻る</a>
+        </div>
+        
+        <div class="content-box">
+            <h2>新規入居者登録</h2>
+            <form method="POST">
+                <div class="grid-inputs">
+                    <div>
+                        <label>お名前</label>
+                        <input type="text" name="patient_name" placeholder="例：山田 太郎" required>
+                    </div>
+                    <div>
+                        <label>ご年齢</label>
+                        <input type="number" name="age" placeholder="例：82" required>
+                    </div>
+                    <div>
+                        <label>身長 (cm)</label>
+                        <input type="number" step="0.1" name="height" placeholder="例: 165.0" required>
+                    </div>
+                    <div>
+                        <label>体重 (kg)</label>
+                        <input type="number" step="0.1" name="weight" placeholder="例: 54.5" required>
+                    </div>
+                </div>
+                
+
+                <div class="grid-inputs" style="margin-bottom: 20px; grid-template-columns: repeat(2, 1fr);">
+                    <div>
+                        <label>実際の入居日 (Admission Date)</label>
+                        <input type="date" name="assigned_date" required>
+                    </div>
+                    <div>
+                        <label>割り当てる部屋（空き部屋）</label>
+                        <select name="room_id" required>
+                            <option value="">-- 選択してください --</option>
+                            {% for rm in vacant_rooms %}
+                                <option value="{{ rm[0] }}">{{ rm[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="save-btn">この内容で登録する</button>
+            </form>
+        </div>
+
+        <div class="content-box">
+            <h2>入居者一覧</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>お名前</th>
+                        <th>年齢</th>
+                        <th>身長</th>
+                        <th>体重</th>
+                        <th>部屋番号</th>
+                        <th>実際の入居日</th> <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in roster %}
+                    <tr>
+                        <td><strong>{{ row[1] }} 様</strong></td>
+                        <td>{{ row[2] }} 歳</td>
+                        <td>{{ row[3] }} cm</td>
+                        <td>{{ row[4] }} kg</td>
+                        <td>
+                            {% if row[6] %}
+                                <span class="vacant-tag" style="background:#eaf6ee; color:#27ae60;">{{ row[6] }}</span>
+                            {% else %}
+                                <span class="vacant-tag" style="background:#f2f4f3; color:#7f8c8d;">退去済み</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row[5] %}
+                                {{ row[5][:10] }} 
+                            {% else %}
+                                --
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row[6] %}
+                                <a href="/admin/patients/discharge/{{ row[0] }}" class="discharge-link" onclick="return confirm('本当にこの入居者を退去処理しますか？部屋が空き状態になります。');">退去</a>
+                            {% else %}
+                                --
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
