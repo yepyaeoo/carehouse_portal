@@ -1,0 +1,13 @@
+Storage Matrix (carehouse.db): * Manages active/inactive patient rosters, unread broadcast notices (system_notices), target-specific mail forms (patient_mails), and their accompanying response submissions (patient_responses).
+
+Telemetry Intake (sensor_manager.py & incoming_csv/):
+
+The background polling thread constantly checks your blank incoming_csv/ directory every 3 seconds for two specific headerless files: temp_hum.csv and heart_rate.csv.
+
+It maps all data entries from those logs straight to Room 403, records them into the database, and immediately cleans out the folder to wait for the next delivery.
+
+User Experience & Communication Matrix (Templates/):
+
+Administrative Side: Staff can utilize multi-select checkbox arrays to deliver targeted messages or query surveys with customized response layouts, accompanied by a permanent feedback flash banner setup.
+
+Resident Side: Room 403's dashboard tracking panels display real-time sensor measurements, history logs, blink notifications (🔴), and host the interactive purple launching pad to the simulated client-side AI Chat Companion (patient_ai.html).

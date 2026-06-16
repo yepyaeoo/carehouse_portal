@@ -1,0 +1,127 @@
+================================================================================
+CAREHOUSE SYSTEM - DATABASE SCHEMA & DICTIONARY (Version 1.3)
+================================================================================
+Database File: carehouse.db
+Engine: SQLite3
+Target Audience: System Administrators & Backend Developers
+
+This document serves as the master reference for the relational database schema
+powering the telemetry monitoring and internal messaging matrix.
+
+--------------------------------------------------------------------------------
+1. CORE PATIENTS & ROOMS DIRECTORY
+--------------------------------------------------------------------------------
+
+TABLE: patients
+Description: Contains the primary registration records for care facility residents.
+Columns:
+  - patient_id (INTEGER, PK): Unique auto-incrementing identifier for the resident.
+  - patient_name (TEXT): The resident's name (e.g., 'マルマル').
+  - age (INTEGER): Age of the resident.
+  - height (REAL): Height in centimeters.
+  - weight (REAL): Weight in kilograms.
+  - created_at (TEXT): Timestamp when the patient profile was first generated.
+
+TABLE: rooms
+Description: Contains the physical room assets available in the facility.
+Columns:
+  - room_id (INTEGER, PK): Unique auto-incrementing identifier for the room.
+  - room_name (TEXT, UNIQUE): Human-readable room descriptor (e.g., '403号室').
+
+TABLE: room_assignments
+Description: Bridge table connecting a patient to a physical room.
+Columns:
+  - assignment_id (INTEGER, PK): Unique identifier for the assignment instance.
+  - room_id (INTEGER, FK): Links to rooms.room_id.
+  - patient_id (INTEGER, FK): Links to patients.patient_id.
+  - assigned_at (TEXT): Date/time the resident moved into the room.
+  - is_active (INTEGER): Status flag (1 = Currently Living Here, 0 = Discharged).
+
+--------------------------------------------------------------------------------
+2. TELEMETRY SENSOR LOGS (Automated CSV Polling Targets)
+--------------------------------------------------------------------------------
+
+TABLE: climate_readings
+Description: Logs ambient environmental data from rooms via 'climate_XXX.csv'.
+Columns:
+  - reading_id (INTEGER, PK): Unique auto-incrementing log ID.
+  - room_id (INTEGER, FK): Links to rooms.room_id.
+  - temperature (REAL): Room temperature in Celsius.
+  - humidity (REAL): Room relative humidity percentage.
+  - recorded_at (TEXT): Hardware-generated timestamp from the sensor.
+
+TABLE: vital_readings
+Description: Logs wearable biometric medical data via 'heartbeat_XXX.csv'.
+Columns:
+  - vital_id (INTEGER, PK): Unique auto-incrementing log ID.
+  - room_id (INTEGER, FK): Links to rooms.room_id.
+  - heart_rate (INTEGER): Resident's heart rate in beats per minute (BPM).
+  - recorded_at (TEXT): Hardware-generated timestamp from the wearable.
+
+--------------------------------------------------------------------------------
+3. NOTICE BOARD SYSTEM (Read-Only Announcements)
+--------------------------------------------------------------------------------
+
+TABLE: system_notices
+Description: Stores broadcast messages pushed from the admin communication panel.
+Columns:
+  - notice_id (INTEGER, PK): Unique identifier for the notice post.
+  - title (TEXT): Headline/Subject of the notice.
+  - body (TEXT): The message content/bulletin description text.
+  - recipient_type (TEXT): Distribution category ('all' or 'individual').
+  - target_patient_id (INTEGER, FK, NULLABLE): Links to patients.patient_id. 
+                         (Value is NULL if notice was broad-brushed to 'all').
+  - created_at (TEXT): Timestamp when the admin dispatched the post.
+
+TABLE: notice_views
+Description: Tracks whether a resident has viewed an announcement to clear the 🔴 badge.
+Columns:
+  - view_id (INTEGER, PK): Unique record index identifier.
+  - notice_id (INTEGER, FK): Links to system_notices.notice_id.
+  - patient_id (INTEGER, FK): Links to patients.patient_id.
+  - viewed_at (TEXT): Timestamp logged automatically when the patient opens the notice page.
+Constraints:
+  - UNIQUE(notice_id, patient_id): Prevents duplicate view logging.
+
+--------------------------------------------------------------------------------
+4. INTERACTIVE MAIL SYSTEM (Custom Surveys & Questionnaires)
+--------------------------------------------------------------------------------
+
+TABLE: patient_mails
+Description: Stores customizable forms sent out to individual profiles by the admin.
+Columns:
+  - mail_id (INTEGER, PK): Unique questionnaire identifier.
+  - title (TEXT): Subject header or survey question topic name.
+  - body (TEXT): Detailed message instructions or text prompt query.
+  - target_patient_id (INTEGER, FK): Links to patients.patient_id.
+  - response_type (TEXT): Configured input expectation ('text' or 'choices').
+  - choice_options (TEXT, NULLABLE): Comma-separated list strings (e.g., 'はい,いいえ').
+                     (Value is NULL if response_type is configured as free text).
+  - created_at (TEXT): Timestamp when the admin submitted the mail.
+
+TABLE: mail_replies
+Description: Stores the single responses submitted back from the patient side.
+Columns:
+  - reply_id (INTEGER, PK): Unique submission identifier.
+  - mail_id (INTEGER, FK): Links to patient_mails.mail_id.
+  - patient_id (INTEGER, FK): Links to patients.patient_id.
+  - submitted_answer (TEXT): The chosen button text value or raw input text.
+  - replied_at (TEXT): Timestamp logged upon submission.
+Constraints:
+  - UNIQUE(mail_id, patient_id): STOPS DUPLICATE REPLIES. Enforces the system rule 
+                                 that a user can only answer a questionnaire once.
+
+--------------------------------------------------------------------------------
+5. SECURITY & PASSWORDS
+--------------------------------------------------------------------------------
+
+TABLE: users
+Description: System accounts governing application login privileges and permission roles.
+Columns:
+  - user_id (INTEGER, PK): Unique account identifier.
+  - username (TEXT, UNIQUE): Unique login ID name string (e.g., 'admin', 'maru').
+  - password_hash (TEXT): Cryptographic secure Bcrypt password signature.
+  - role (TEXT): System authorization clearance flag ('staff' or 'patient').
+  - patient_id (INTEGER, FK, NULLABLE): Links to patients.patient_id if role is 'patient'.
+                 (Value is NULL for staff administrators).
+================================================================================

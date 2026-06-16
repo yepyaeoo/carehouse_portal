@@ -1,0 +1,13 @@
+carehouse_project/
+│
+├── app.py                <-- Master Application Control Hub (Lean & Clean)
+├── services.py           <-- OOP Managers (Telemetry Cache, Pipeline Engine, DB Utils)
+│
+├── auth_routes.py        <-- Blueprint Module: Login Portal, Security & Logout
+├── monitoring_routes.py  <-- Blueprint Module: Live Tracking feeds & Charts Analytics
+├── patient_routes.py     <-- Blueprint Module: Resident Mailboxes & AI Portal
+├── admin_routes.py       <-- Blueprint Module: Staff Controls, Roster CRUD, Broadcasts
+│
+├── sensor_manager.py     <-- Pre-Existing CSV File Watcher
+├── auth_manager.py       <-- Pre-Existing Login Security Helpers
+└── testdata.py           <-- Pre-Existing Diagnostic Mock Tool
